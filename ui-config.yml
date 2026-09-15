@@ -1,0 +1,25 @@
+---
+
+antora:
+  name: modules
+  dir: www
+  modules:
+    - name: module-01
+      label: "Lab Introduction"
+      solveButton: false
+    - name: module-02
+      label: "Adding Security Controls"
+      solveButton: false
+    - name: module-03
+      label: "Testing Compliance"
+      solveButton: false
+
+tabs:
+  - name: "Build host terminal"
+    url: /wetty/ssh/root
+  - name: ">_ Bootc VM"
+    url: /wetty_bootc_vm/ssh/root
+    modules:
+      - module-02
+      - module-03
+

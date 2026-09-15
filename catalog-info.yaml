@@ -1,0 +1,36 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: image-mode-security
+  title: image-mode-security
+  description: A hands-on lab covering some security features and how they apply
+    to RHEL Image Mode.  Focusing on compliance policy and fapolicyd.
+  annotations:
+    ph.rhdp.io/content-type: lab
+    ph.rhdp.io/deployment-mode: rhdp_published
+    ph.rhdp.io/github-user: nlager
+    ph.rhdp.io/owner: nlager@redhat.com
+    ph.rhdp.io/migrated-repo: https://github.com/rhel-labs/zt-image-mode-security.git
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: rhpds/image-mode-security
+    ph.rhdp.io/created-at: 2026-09-15T18:18:47.477Z
+  tags:
+    - publishing-house
+    - lab
+    - rhdp-published
+    - migration
+  links:
+    - url: https://github.com/rhpds/image-mode-security
+      title: Repository
+      icon: github
+    - url: https://devspaces.apps.ocpv-infra02.wdc07.infra.demo.redhat.com#https://github.com/rhpds/image-mode-security
+      title: Open in DevSpaces
+      icon: catalog
+    - url: https://central-api-publishing-house.apps.ocpv-infra02.wdc07.infra.demo.redhat.com
+      title: Central
+      icon: dashboard
+spec:
+  type: content
+  lifecycle: experimental
+  owner: rhdp-team
+  system: publishing-house
