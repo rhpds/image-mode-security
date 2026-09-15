@@ -109,8 +109,14 @@ approval_checklist:
     prerequisites_verifiable: null
     assessment_strategy: ""
     catalog_gap: ""
-    design_overview: ""
-    module_summaries: []
+    design_overview: "A hands-on intermediate lab on baking security and compliance into RHEL 10 Image Mode (bootc) images. Learners add FAPolicyd application allow-listing and a tailored CIS Server Level 1 SCAP policy to a Containerfile at build time, rebuild and push the hardened bootc image, then deploy it to a bootc VM and validate that the controls work. Runs across a build host and a bootc VM in roughly 18 minutes."
+    module_summaries:
+      - title: "Lab Introduction"
+        overview: "Narrative overview that sets the lab goals and explains why build-time security offers consistency, immutability, auditability, and efficiency. Describes the two-machine environment (build host + bootc VM); no hands-on tasks."
+      - title: "Adding Security Controls"
+        overview: "Core hands-on module: edit the Containerfile to install and enable FAPolicyd plus audit/SELinux/OpenSCAP tooling, tailor a CIS Server Level 1 SCAP policy with autotailor and apply it with oscap-im, then build/push the hardened bootc image and apply it to the bootc VM."
+      - title: "Testing Compliance"
+        overview: "Validation module on the bootc VM: confirm FAPolicyd blocks an unapproved binary and run an OpenSCAP evaluation against the CIS Server Level 1 profile, expecting a compliance score in the 90s, then review why rules pass, fail, or are not applicable."
     rcars_overlap_pct: null
     rcars_top_matches: []
     rejections: []
