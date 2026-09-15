@@ -65,11 +65,11 @@ Intermediate.
 
 ## Environment
 
-**Learner view:** At lab start the learner has two RHEL 10 systems reachable through separate SSH terminal tabs. The **Build host** (`/wetty/ssh/root`) is a RHEL 10 machine with a pre-configured bootc build environment, including a `~/bootc-base` directory containing an existing Containerfile. The **Bootc VM** (`/wetty_bootc_vm/ssh/root`) is a bootc-deployed guest that is created/updated during the lab from the hardened image the learner builds. Learners switch between the two tabs as directed by the module callouts. A lab-provisioned container registry endpoint (`registry-{guid}.{domain}`) is available for pushing and pulling the bootc image.
+**Learner view:** At lab start the learner has a single RHDP-provisioned RHEL 10 **Build host** (`/wetty/ssh/root`) with a pre-configured bootc build environment, including a `~/bootc-base` directory containing an existing Containerfile. The **Bootc VM** (`/wetty_bootc_vm/ssh/root`) is a **nested KVM guest running on the build host** — it is created/updated during the lab from the hardened image the learner builds, and is reached through a second SSH terminal tab. It is not a separate RHDP instance. Learners switch between the two tabs as directed by the module callouts. A lab-provisioned container registry endpoint (`registry-{guid}.{domain}`) is available for pushing and pulling the bootc image.
 
 **Automation needed:** Yes.
 
-Automation must provision the RHEL 10 build host with the bootc build toolchain (Podman, Skopeo, jq, and the pre-seeded `~/bootc-base` Containerfile), stand up (or make available) the container registry endpoint, and provide the bootc VM that is deployed/updated from the learner's hardened image during the lab. Automation approach is Ansible.
+Automation must provision the RHEL 10 build host with the bootc build toolchain (Podman, Skopeo, jq, and the pre-seeded `~/bootc-base` Containerfile), enable nested virtualization and prepare the nested bootc guest that is deployed/updated from the learner's hardened image during the lab, and stand up (or make available) the container registry endpoint. Automation approach is Ansible.
 
 ## Infrastructure Requirements
 
@@ -77,13 +77,13 @@ Automation must provision the RHEL 10 build host with the bootc build toolchain 
 - **Platform:** rhel-vms (not OpenShift)
 - **Cluster type:** N/A (not OpenShift)
 - **OCP version:** N/A
-- **Topology:** Per-student (each learner needs their own build host + bootc VM)
+- **Topology:** Per-student (each learner needs their own build host)
 - **Sizing:**
-  - Build host — count 1, 4 vCPU, 8 GB RAM, 100 GB disk, RHEL 10. Disk sized for headroom for container image builds (Podman layers, pushed images, and a full RHEL image rebuild). *TBD — confirmed in infrastructure phase.*
-  - Bootc VM — count 1, 2 vCPU, 4 GB RAM, 30 GB disk (read-only/immutable root filesystem), RHEL 10. *TBD — confirmed in infrastructure phase.*
+  - Build host — count 1, 6 vCPU, 16 GB RAM, 120 GB disk, RHEL 10, **nested virtualization required**. Sized to run both the bootc build toolchain (Podman layers, pushed images, a full RHEL image rebuild) and the nested bootc guest VM. *TBD — confirmed in infrastructure phase.*
+  - Bootc VM — a nested KVM guest on the build host (~2 vCPU / 4 GB RAM / 30 GB disk, read-only/immutable root filesystem, RHEL 10), carved from the build host. **Not** a separate RHDP instance.
 - **Automation approach:** Ansible
 - **AI/MaaS:** None
-- **External services:** None external. A container registry is used for push/pull but appears lab-provisioned (`registry-{guid}.{domain}`), not a public dependency.
+- **External services:** `cdn.redhat.com` (dnf package installs during the Containerfile build) and `registry.redhat.io` (bootc base image pull) — confirm in infra review whether these are mirrored/pre-staged in-lab. A lab-provisioned container registry (`registry-{guid}.{domain}`) is used for image push/pull (internal, not an external dependency).
 - **Non-GA products:** None (all products are GA)
 
 ## Assessment Strategy (Optional)

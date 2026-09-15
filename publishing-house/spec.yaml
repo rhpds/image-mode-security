@@ -57,19 +57,19 @@ spec:
 
     # --- VM-specific fields (only when platform = rhel-vms) ---
     # Each entry: {role, count, cpu, ram_gb, disk_gb, os}
+    # Single RHDP-provisioned instance per student: the build host.
+    # The bootc VM is a NESTED KVM guest running on the build host (created/updated
+    # during the lab from the student's hardened image) — it is NOT a second RHDP
+    # instance. The build host is sized to host the nested guest and requires nested
+    # virtualization. Guest footprint (~2 vCPU / 4GB / 30GB) is carved from the build host.
     vms_per_student:
       - role: build-host
         count: 1
-        cpu: 4
-        ram_gb: 8
-        disk_gb: 100
+        cpu: 6
+        ram_gb: 16
+        disk_gb: 120
         os: rhel-10
-      - role: bootc-vm
-        count: 1
-        cpu: 2
-        ram_gb: 4
-        disk_gb: 30
-        os: rhel-10
+        nested_virtualization: true
 
     # --- Common fields (both platforms) ---
     aap_version: ""                    # required if AAP in products
@@ -79,7 +79,9 @@ spec:
     ai_justification: ""               # required if ai_model_tier = frontier or ai_requirement = gpu
     non_ga_products: []                # list of non-GA products/versions
     non_ga_access_plan: ""             # how access is provided for non-GA products
-    external_services: []              # named external service dependencies e.g. [github.com]
+    external_services:                 # named external service dependencies e.g. [github.com]
+      - cdn.redhat.com                 # dnf package installs during Containerfile build
+      - registry.redhat.io             # bootc base image pull (confirm if mirrored in-lab)
     gpu_nodes: 0                       # number of GPU nodes (0 = none)
     gpu_type: ""                       # e.g. NVIDIA A100 40GB (required if gpu_nodes > 0)
   duration_hours: 0.3
