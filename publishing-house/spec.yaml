@@ -1,92 +1,71 @@
-# Publishing House — Project Spec
-# Lifecycle: intake → content_review → infra_review → jira_sync → development → ready → published
-# No secrets in this file. Tokens live in ~/.config/publishing-house/auth.json
-# Stage is managed by SonataFlow and cached in .ph-state — do not edit stage.current manually.
-# NOTE: This file is also in the template repo. The Scaffolder overlays project.* values.
-# TODO: Eliminate this copy — Scaffolder should pull from template repo directly.
-
 project:
-  slug: "image-mode-security"
-  owner_email: "nlager@redhat.com"
-  content_type: "lab"
-  deployment_mode: "rhdp_published"
-  initiative_key: "rh1_2027"
-  showroom_type: "zero_touch"
-  intake_type: "migration"
-  automation_type: "ansible"
-  description: "A hands-on lab covering some security features and how they apply to RHEL Image Mode.  Focusing on compliance policy and fapolicyd."
-  # content_reviewer_email and infra_reviewer_email are assigned by the RHDP team — not set by the author
-  jira_ticket: "RHDPCD-1643"
-  workflow_id: "abdd0802-2914-47c1-bc58-b7a8059adc50"
-
+  slug: image-mode-security
+  owner_email: nlager@redhat.com
+  content_type: lab
+  deployment_mode: rhdp_published
+  initiative_key: rh1_2027
+  showroom_type: zero_touch
+  intake_type: migration
+  automation_type: ansible
+  description: A hands-on lab covering some security features and how they apply to
+    RHEL Image Mode.  Focusing on compliance policy and fapolicyd.
+  jira_ticket: RHDPCD-1643
+  workflow_id: abdd0802-2914-47c1-bc58-b7a8059adc50
 spec:
-  title: "Image Mode Security and Compliance"
+  title: Image Mode Security and Compliance
   learning_objectives:
-    - "Configure FAPolicyd application allow-listing in a bootc image"
-    - "Implement a tailored CIS Server Level 1 SCAP policy at build time"
-    - "Verify runtime security and compliance on the deployed bootc system"
-  modules:                 # [{id, title, duration_min}] — written by intake Phase 4; id is stable (e.g. module-01)
-    - id: module-01
-      title: "Lab Introduction"
-      duration_min: 3
-      status: not_started
-    - id: module-02
-      title: "Adding Security Controls"
-      duration_min: 10
-      status: not_started
-    - id: module-03
-      title: "Testing Compliance"
-      duration_min: 5
-      status: not_started
+  - Configure FAPolicyd application allow-listing in a bootc image
+  - Implement a tailored CIS Server Level 1 SCAP policy at build time
+  - Verify runtime security and compliance on the deployed bootc system
+  modules:
+  - id: module-01
+    title: Lab Introduction
+    duration_min: 3
+    status: complete
+  - id: module-02
+    title: Adding Security Controls
+    duration_min: 10
+    status: complete
+  - id: module-03
+    title: Testing Compliance
+    duration_min: 5
+    status: complete
   environment:
-    platform: "rhel-vms"       # ocp | rhel-vms — determines which sizing fields apply
-    topology: "per-student"    # shared-cluster | per-student | cnv-pool
-    cloud_provider: cnv        # cnv | aws — cnv is default
-    max_concurrent_users: null # required if topology = shared-cluster
-
-    # --- OCP-specific fields (only when platform = ocp) ---
-    ocp_version: ""                    # e.g. 4.20 — minimum 4.20; leave empty for rhel-vms
-    cluster_type: ""                   # sno | multinode — only for platform = ocp
-    control_plane_instance_count: null # 1 if sno, 3 if multinode
-    control_plane_cpu: null            # 32 if sno, 16 if multinode
-    control_plane_ram_gb: null         # 128 if sno, 64 if multinode
-    worker_count: null                 # number of OCP worker nodes
-    worker_cpu: null                   # vCPU per worker
-    worker_ram_gb: null                # RAM per worker in GB
-    worker_disk_gb: null               # disk per worker in GB
-
-    # --- VM-specific fields (only when platform = rhel-vms) ---
-    # Each entry: {role, count, cpu, ram_gb, disk_gb, os}
-    # Single RHDP-provisioned instance per student: the build host.
-    # The bootc VM is a NESTED KVM guest running on the build host (created/updated
-    # during the lab from the student's hardened image) — it is NOT a second RHDP
-    # instance. The build host is sized to host the nested guest and requires nested
-    # virtualization. Guest footprint (~2 vCPU / 4GB / 30GB) is carved from the build host.
+    platform: rhel-vms
+    topology: per-student
+    cloud_provider: cnv
+    max_concurrent_users: null
+    ocp_version: ''
+    cluster_type: ''
+    control_plane_instance_count: null
+    control_plane_cpu: null
+    control_plane_ram_gb: null
+    worker_count: null
+    worker_cpu: null
+    worker_ram_gb: null
+    worker_disk_gb: null
     vms_per_student:
-      - role: build-host
-        count: 1
-        cpu: 6
-        ram_gb: 16
-        disk_gb: 120
-        os: rhel-10
-        nested_virtualization: true
-
-    # --- Common fields (both platforms) ---
-    aap_version: ""                    # required if AAP in products
-    ai_requirement: "none"             # maas | gpu | none
-    ai_model_tier: ""                  # open-source | frontier (if ai_requirement = maas or gpu)
-    ai_model_name: ""                  # specific model e.g. granite-3.1-8b
-    ai_justification: ""               # required if ai_model_tier = frontier or ai_requirement = gpu
-    non_ga_products: []                # list of non-GA products/versions
-    non_ga_access_plan: ""             # how access is provided for non-GA products
-    external_services:                 # named external service dependencies e.g. [github.com]
-      - cdn.redhat.com                 # dnf package installs during Containerfile build
-      - registry.redhat.io             # bootc base image pull (confirm if mirrored in-lab)
-    gpu_nodes: 0                       # number of GPU nodes (0 = none)
-    gpu_type: ""                       # e.g. NVIDIA A100 40GB (required if gpu_nodes > 0)
+    - role: build-host
+      count: 1
+      cpu: 6
+      ram_gb: 16
+      disk_gb: 120
+      os: rhel-10
+      nested_virtualization: true
+    aap_version: ''
+    ai_requirement: none
+    ai_model_tier: ''
+    ai_model_name: ''
+    ai_justification: ''
+    non_ga_products: []
+    non_ga_access_plan: ''
+    external_services:
+    - cdn.redhat.com
+    - registry.redhat.io
+    gpu_nodes: 0
+    gpu_type: ''
   duration_hours: 0.3
-  audience: "intermediate"   # beginner | intermediate | advanced
-
+  audience: intermediate
 development:
   automation:
     ansible:
@@ -95,53 +74,75 @@ development:
     status: not_started
   healthCheck:
     status: not_started
-
 compliance:
   last_hard_check: null
   hard_result: null
-
 tracking:
   paused: false
   pause_reason: null
-
-# Approval checklist — filled collaboratively by author + skill + system + reviewers
 approval_checklist:
-
   content:
     prerequisites_verifiable: null
-    assessment_strategy: ""
-    catalog_gap: "The 98% match, \"Image Mode is the best mode\" (zt-image-mode-rh1), overlaps by design: this lab is a deliberate lift/compartmentalization of the security-and-compliance (FAPolicyd + OpenSCAP) modules from that 180-minute end-to-end lab, repackaged as a focused ~18-minute standalone follow-on so learners can drill build-time hardening (FAPolicyd allow-listing plus autotailor/oscap-im CIS Server L1 baked into the Containerfile, then runtime validation) without running the full bootc build/deploy/day-2 session. The content is intentionally the same. The FAPolicyd (zt-file-access-policy, zt-security-fapolicyd) and OpenSCAP (zt-openscap) labs each cover only one control on traditional RHEL with no bootc/Image Mode integration."
-    design_overview: "A hands-on intermediate lab on baking security and compliance into RHEL 10 Image Mode (bootc) images. Learners add FAPolicyd application allow-listing and a tailored CIS Server Level 1 SCAP policy to a Containerfile at build time, rebuild and push the hardened bootc image, then deploy it to a bootc VM and validate that the controls work. Runs across a build host and a bootc VM in roughly 18 minutes."
+    assessment_strategy: ''
+    catalog_gap: 'The 98% match, "Image Mode is the best mode" (zt-image-mode-rh1),
+      overlaps by design: this lab is a deliberate lift/compartmentalization of the
+      security-and-compliance (FAPolicyd + OpenSCAP) modules from that 180-minute
+      end-to-end lab, repackaged as a focused ~18-minute standalone follow-on so learners
+      can drill build-time hardening (FAPolicyd allow-listing plus autotailor/oscap-im
+      CIS Server L1 baked into the Containerfile, then runtime validation) without
+      running the full bootc build/deploy/day-2 session. The content is intentionally
+      the same. The FAPolicyd (zt-file-access-policy, zt-security-fapolicyd) and OpenSCAP
+      (zt-openscap) labs each cover only one control on traditional RHEL with no bootc/Image
+      Mode integration.'
+    design_overview: A hands-on intermediate lab on baking security and compliance
+      into RHEL 10 Image Mode (bootc) images. Learners add FAPolicyd application allow-listing
+      and a tailored CIS Server Level 1 SCAP policy to a Containerfile at build time,
+      rebuild and push the hardened bootc image, then deploy it to a bootc VM and
+      validate that the controls work. Runs across a build host and a bootc VM in
+      roughly 18 minutes.
     module_summaries:
-      - title: "Lab Introduction"
-        overview: "Narrative overview that sets the lab goals and explains why build-time security offers consistency, immutability, auditability, and efficiency. Describes the two-machine environment (build host + bootc VM); no hands-on tasks."
-      - title: "Adding Security Controls"
-        overview: "Core hands-on module: edit the Containerfile to install and enable FAPolicyd plus audit/SELinux/OpenSCAP tooling, tailor a CIS Server Level 1 SCAP policy with autotailor and apply it with oscap-im, then build/push the hardened bootc image and apply it to the bootc VM."
-      - title: "Testing Compliance"
-        overview: "Validation module on the bootc VM: confirm FAPolicyd blocks an unapproved binary and run an OpenSCAP evaluation against the CIS Server Level 1 profile, expecting a compliance score in the 90s, then review why rules pass, fail, or are not applicable."
+    - title: Lab Introduction
+      overview: Narrative overview that sets the lab goals and explains why build-time
+        security offers consistency, immutability, auditability, and efficiency. Describes
+        the two-machine environment (build host + bootc VM); no hands-on tasks.
+    - title: Adding Security Controls
+      overview: 'Core hands-on module: edit the Containerfile to install and enable
+        FAPolicyd plus audit/SELinux/OpenSCAP tooling, tailor a CIS Server Level 1
+        SCAP policy with autotailor and apply it with oscap-im, then build/push the
+        hardened bootc image and apply it to the bootc VM.'
+    - title: Testing Compliance
+      overview: 'Validation module on the bootc VM: confirm FAPolicyd blocks an unapproved
+        binary and run an OpenSCAP evaluation against the CIS Server Level 1 profile,
+        expecting a compliance score in the 90s, then review why rules pass, fail,
+        or are not applicable.'
     rcars_overlap_pct: 98
     rcars_top_matches:
-      - title: "Image Mode is the best mode"
-        ci_name: "zt-rhelbu.zt-image-mode-rh1.prod"
-        url: "https://catalog.demo.redhat.com/catalog?item=zt-rhelbu.zt-image-mode-rh1.prod"
-        relevance_score: 98
-        why_it_fits: "Directly covers all three technologies — RHEL Image Mode (bootc), FAPolicyd application allowlisting, and OpenSCAP SCAP compliance at build time — in an intermediate hands-on format, but as one segment of a 180-minute end-to-end lab."
-      - title: "File Access Policy"
-        ci_name: "zt-rhelbu.zt-file-access-policy.prod"
-        url: "https://catalog.demo.redhat.com/catalog?item=zt-rhelbu.zt-file-access-policy.prod"
-        relevance_score: 52
-        why_it_fits: "Covers FAPolicyd allowlisting, trust databases, and enforcing/permissive modes on traditional RHEL — one of the three topics, with no bootc/Image Mode or OpenSCAP integration."
-      - title: "Enabling RHEL Security FAPolicyD 101"
-        ci_name: "zt-rhelbu.zt-security-fapolicyd.prod"
-        url: "https://catalog.demo.redhat.com/catalog?item=zt-rhelbu.zt-security-fapolicyd.prod"
-        relevance_score: 48
-        why_it_fits: "Beginner FAPolicyd lab (install, trust DB, SHA-256 integrity) on traditional RHEL — no bootc/Image Mode or OpenSCAP/CIS coverage."
+    - title: Image Mode is the best mode
+      ci_name: zt-rhelbu.zt-image-mode-rh1.prod
+      url: https://catalog.demo.redhat.com/catalog?item=zt-rhelbu.zt-image-mode-rh1.prod
+      relevance_score: 98
+      why_it_fits: "Directly covers all three technologies \u2014 RHEL Image Mode\
+        \ (bootc), FAPolicyd application allowlisting, and OpenSCAP SCAP compliance\
+        \ at build time \u2014 in an intermediate hands-on format, but as one segment\
+        \ of a 180-minute end-to-end lab."
+    - title: File Access Policy
+      ci_name: zt-rhelbu.zt-file-access-policy.prod
+      url: https://catalog.demo.redhat.com/catalog?item=zt-rhelbu.zt-file-access-policy.prod
+      relevance_score: 52
+      why_it_fits: "Covers FAPolicyd allowlisting, trust databases, and enforcing/permissive\
+        \ modes on traditional RHEL \u2014 one of the three topics, with no bootc/Image\
+        \ Mode or OpenSCAP integration."
+    - title: Enabling RHEL Security FAPolicyD 101
+      ci_name: zt-rhelbu.zt-security-fapolicyd.prod
+      url: https://catalog.demo.redhat.com/catalog?item=zt-rhelbu.zt-security-fapolicyd.prod
+      relevance_score: 48
+      why_it_fits: "Beginner FAPolicyd lab (install, trust DB, SHA-256 integrity)\
+        \ on traditional RHEL \u2014 no bootc/Image Mode or OpenSCAP/CIS coverage."
     rejections: []
-
   infra:
     peak_environments: null
-    cost_per_run_est: ""
-    provisioning_time_est: ""
-    agnosticv_base_ci: ""
-    approved_by: ""
+    cost_per_run_est: ''
+    provisioning_time_est: ''
+    agnosticv_base_ci: ''
+    approved_by: ''
     rejections: []
