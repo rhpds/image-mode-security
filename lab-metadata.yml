@@ -1,0 +1,9 @@
+---
+lab:
+  name: "Image Mode Security and Compliance"
+  shortname: image-mode-security
+  maintainer: nlager@redhat.com
+  description: "A hands-on lab covering some security features and how they apply to RHEL Image Mode. Focusing on compliance policy and fapolicyd."
+  git_ref:
+    production: main
+    development: main
