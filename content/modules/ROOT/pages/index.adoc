@@ -1,0 +1,23 @@
+= Image Mode Security and Compliance
+
+This hands-on lab shows how to bake security and compliance controls directly into a RHEL 10 Image Mode (bootc) image, so every system deployed from that image starts with a consistent, immutable security baseline.
+
+== What You'll Learn
+
+* Configure FAPolicyd application allow-listing in a bootc image
+* Implement a tailored CIS Server Level 1 SCAP policy at build time
+* Verify runtime security and compliance on the deployed bootc system
+
+== Prerequisites
+
+* Basic familiarity with RHEL Image Mode and bootc concepts
+* Understanding of security and compliance concepts (FAPolicyd, OpenSCAP, CIS benchmarks)
+* Comfort with a terminal text editor (nano or vim)
+* Recommended: complete an Image Mode Fundamentals lab first
+
+== Environment
+
+You will work across two machines:
+
+* *Build host* — a RHEL 10 host with a pre-configured bootc build environment
+* *Bootc VM* — a nested KVM guest deployed during the lab from the hardened image you build
