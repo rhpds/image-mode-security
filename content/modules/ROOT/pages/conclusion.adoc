@@ -1,0 +1,69 @@
+= Conclusion and Next Steps
+
+Nice work! You've completed the Image Mode Security and Compliance lab.
+You built a hardened bootc image from scratch, deployed it, and confirmed that the security controls actually work — not just in theory, but on a live system.
+
+== What You've Learned
+
+Here's what you accomplished across the three modules:
+
+* **Configured FAPolicyd application allow-listing in a bootc image** — you added FAPolicyd to the Containerfile with a single `systemctl enable` call, taking advantage of the fact that full RHEL Image Mode hosts run systemd, so no extra init setup is required.
+
+* **Implemented a tailored CIS Server Level 1 SCAP policy at build time** — you used `autotailor` to customize the CIS Server Level 1 profile for your organization's needs, then applied it inside the container build with `oscap-im`. The resulting image carries labels that record exactly which compliance profile was applied, so that information travels with the image wherever it goes.
+
+* **Verified runtime security and compliance on the deployed bootc system** — you confirmed that FAPolicyd blocks execution of binaries from untrusted paths, then ran a full OpenSCAP evaluation against the deployed system and saw a compliance score in the 90s against the same CIS Level 1 profile you applied at build time.
+
+=== Key Takeaways
+
+These are the ideas worth carrying forward:
+
+* Build-time security means **every system deployed from the image starts at the same baseline** — there's no configuration drift between hosts.
+* A compliance policy tailoring file is reusable. Generate it once with `autotailor`, commit it to your build repo, and apply it to every image build that needs it.
+* `oscap-im` is purpose-built for containerized builds. It scans and remediates inside the build layer, so the policy work is done before the image ever runs.
+* FAPolicyd on an image mode host is straightforward to enable because the read-only filesystem already limits where software can be installed, which simplifies the allow-list.
+* A CIS Level 1 score in the 90s is a strong baseline. The rules that don't pass are worth reviewing — many apply to runtime state or deployment scenarios that don't match your environment.
+
+== Next Steps
+
+From here you can take this further in several directions:
+
+* **Automate image rebuilds** — integrate your Containerfile into a CI/CD pipeline so that every commit to your security configuration triggers a fresh build and push. Pair this with `bootc update` automation on your fleet to roll out changes automatically.
+* **Expand policy tailoring** — review the full CIS Server Level 1 rule set and build a tailoring file that reflects your organization's real requirements, not just the lab workaround for root logins.
+* **Add custom FAPolicyd rules** — for workloads that run software from non-standard paths, you can add FAPolicyd rule files directly in the Containerfile to allow specific binaries or directories.
+* **Layer compliance across image tiers** — use a hardened base image as the foundation for application-specific images so the security baseline is inherited without repetition.
+* **Explore image signing** — use Sigstore or cosign to sign your hardened images so that only verified builds can be deployed to production hosts.
+
+== References
+
+The following products, tools, and documents are relevant to what you did in this lab:
+
+=== Products and Tools
+
+* https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index[Red Hat Enterprise Linux 10 Image Mode (bootc) documentation]
+* https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/security_hardening/index[RHEL 10 Security Hardening guide]
+* https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/10/html/using_the_file_access_policy_daemon[FAPolicyd — File Access Policy Daemon]
+* https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/security_compliance_in_rhel_using_openscap/index[OpenSCAP and SCAP Security Guide in RHEL 10]
+* https://github.com/ComplianceAsCode/content[SCAP Security Guide (ComplianceAsCode) on GitHub]
+* https://github.com/containers/bootc[bootc — Bootable OCI containers on GitHub]
+* https://podman.io[Podman]
+
+=== Standards and Benchmarks
+
+* https://www.cisecurity.org/benchmark/red_hat_linux[CIS Red Hat Enterprise Linux Benchmark]
+* https://www.open-scap.org[OpenSCAP project]
+
+=== Commands Used in This Lab
+
+[source,text]
+----
+autotailor        # Tailor a SCAP policy data stream
+oscap-im          # Apply a SCAP policy inside a container build
+oscap xccdf eval  # Evaluate a running system against a SCAP profile
+fapolicyd-cli     # Inspect and manage FAPolicyd rules
+bootc update      # Pull and apply a new bootc image to a running host
+podman build      # Build a container (or bootc) image from a Containerfile
+podman push       # Push an image to a registry
+skopeo inspect    # Inspect image metadata and labels from a registry
+----
+
+[.validate-button-placeholder]#validate-button-placeholder#
