@@ -4,13 +4,13 @@ antora:
   name: modules
   dir: www
   modules:
-    - name: module-01
+    - name: module-01-introduction
       label: "Lab Introduction"
       solveButton: false
-    - name: module-02
+    - name: module-02-adding-security-controls
       label: "Adding Security Controls"
       solveButton: false
-    - name: module-03
+    - name: module-03-testing-compliance
       label: "Testing Compliance"
       solveButton: false
 
