@@ -168,6 +168,11 @@ LABEL org.opencontainers.image.authors="sysadmins@example.com"
 LABEL vendor="Example Corp"
 
 RUN systemctl mask bootc-fetch-apply-updates.timer
+
+# Passwordless sudo for the wheel group (the lab 'core' user is in wheel). Kept as
+# the final build step so it survives the CIS SCAP remediation added in Module 2,
+# which otherwise strips NOPASSWD from the sudoers configuration.
+RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel-nopasswd && chmod 0440 /etc/sudoers.d/wheel-nopasswd
 EOF
 
 # Script for bootc-vm SSH tab

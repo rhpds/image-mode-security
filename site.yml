@@ -2,7 +2,7 @@
 site:
   title: "Image Mode Security and Compliance"
   url: https://github.com/rhpds/showroom_template_zero
-  start_page: modules::module-01.adoc
+  start_page: modules::index.adoc
 
 content:
   sources:
