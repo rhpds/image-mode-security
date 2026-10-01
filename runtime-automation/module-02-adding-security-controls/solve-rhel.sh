@@ -1,4 +1,7 @@
 #!/bin/sh
+# Source lab environment variables
+. /etc/profile.d/lab.sh
+
 echo "Building and deploying security VM..." >> /tmp/progress.log
 
 cd ~/bootc-base
