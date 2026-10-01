@@ -71,9 +71,9 @@ development:
     ansible:
       status: complete
   e2e:
-    status: in_progress
+    status: complete
   healthCheck:
-    status: in_progress
+    status: complete
 
 compliance:
   last_hard_check: null
