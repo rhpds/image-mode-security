@@ -5,6 +5,10 @@
 echo "Building and deploying security VM..." >> /tmp/progress.log
 
 cd ~/bootc-base
+
+# Add security profile label to Containerfile
+echo 'LABEL profile="CIS Server Level 1 base image"' >> Containerfile
+
 podman build --file Containerfile --tag registry-${GUID}.${DOMAIN}/base 2>&1 >> /tmp/progress.log
 podman push registry-${GUID}.${DOMAIN}/base 2>&1 >> /tmp/progress.log
 
