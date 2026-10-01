@@ -1,19 +1,24 @@
 ---
 # E2E — End-to-end test
-# Runs the qa-automation/scripts shell scripts against the bastion host, in a
+# Runs the qa-automation/scripts shell scripts against the rhel VM, in a
 # fixed order. Fails on the first broken script.
+#
+# The showroom runner container has direct SSH access to the VMs in its own
+# namespace (reachable by their Service name via cluster DNS) and is given
+# ANSIBLE_USER/ANSIBLE_PASSWORD for auth — it does not receive BASTION_HOST
+# (that's only injected into the setup init container).
 
 - name: Build inventory
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Add bastion host
+    - name: Add rhel VM host
       ansible.builtin.add_host:
-        name: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
-        ansible_ssh_host: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
+        name: rhel
+        ansible_ssh_host: rhel
         ansible_ssh_port: "{{ lookup('ansible.builtin.env', 'BASTION_PORT') }}"
-        ansible_ssh_user: "{{ lookup('ansible.builtin.env', 'BASTION_USER') }}"
-        ansible_ssh_pass: "{{ lookup('ansible.builtin.env', 'BASTION_PASSWORD') }}"
+        ansible_ssh_user: "{{ lookup('ansible.builtin.env', 'ANSIBLE_USER') }}"
+        ansible_ssh_pass: "{{ lookup('ansible.builtin.env', 'ANSIBLE_PASSWORD') }}"
 
 - name: E2E - run scripts in order
   hosts: all:!localhost

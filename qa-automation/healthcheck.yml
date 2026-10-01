@@ -1,21 +1,26 @@
 ---
 # HEALTHCHECK — Quick environment readiness check (migrated ZT Guided content)
-# Verifies the bastion host is reachable via SSH. Non-destructive: does not
+# Verifies the rhel VM is reachable via SSH. Non-destructive: does not
 # modify any lab state. Should complete in under 60 seconds.
 #
 # Exit 0 = healthy, non-zero = unhealthy.
+#
+# The showroom runner container has direct SSH access to the VMs in its own
+# namespace (reachable by their Service name via cluster DNS) and is given
+# ANSIBLE_USER/ANSIBLE_PASSWORD for auth — it does not receive BASTION_HOST
+# (that's only injected into the setup init container).
 
 - name: Build inventory
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Add bastion host
+    - name: Add rhel VM host
       ansible.builtin.add_host:
-        name: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
-        ansible_ssh_host: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
+        name: rhel
+        ansible_ssh_host: rhel
         ansible_ssh_port: "{{ lookup('ansible.builtin.env', 'BASTION_PORT') }}"
-        ansible_ssh_user: "{{ lookup('ansible.builtin.env', 'BASTION_USER') }}"
-        ansible_ssh_pass: "{{ lookup('ansible.builtin.env', 'BASTION_PASSWORD') }}"
+        ansible_ssh_user: "{{ lookup('ansible.builtin.env', 'ANSIBLE_USER') }}"
+        ansible_ssh_pass: "{{ lookup('ansible.builtin.env', 'ANSIBLE_PASSWORD') }}"
 
 - name: Healthcheck
   hosts: all:!localhost
