@@ -1,15 +1,23 @@
 ---
-# Reusable task list: copy a runtime-automation script to the remote host,
+# Reusable task list: copy a qa-automation/scripts script to the remote host,
 # execute it with the fail_validation helper sourced, and capture output.
 #
 # Expected vars (set by the caller's loop):
-#   module_name  – e.g. "module-01"
-#   stage_name   – "solve" or "validation"
-#   runtime_path – path to runtime-automation directory (set in play vars)
+#   module_name   – e.g. "module-02-adding-security-controls" (full ui-config name)
+#   stage_name    – "solve" or "validation"
+#   scripts_path  – path to qa-automation/scripts directory (set in play vars)
+#
+# Scripts are flat files named "module-<n>-<stage>-<host>.sh", e.g.
+# "module-2-solve-rhel.sh" – module_name is shortened to "module-<n>"
+# (leading zero stripped) to match.
+
+- name: "{{ module_name }}/{{ stage_name }} – compute short module id"
+  ansible.builtin.set_fact:
+    short_module_name: "{{ module_name | regex_replace('^module-0*(\\d+).*', 'module-\\1') }}"
 
 - name: "{{ module_name }}/{{ stage_name }} – check script exists"
   ansible.builtin.stat:
-    path: "{{ runtime_path }}/{{ module_name }}/{{ stage_name }}-{{ inventory_hostname }}.sh"
+    path: "{{ scripts_path }}/{{ short_module_name }}-{{ stage_name }}-{{ inventory_hostname }}.sh"
   delegate_to: localhost
   become: false
   register: r_script_stat
@@ -17,19 +25,19 @@
 - name: "{{ module_name }}/{{ stage_name }} – skip (no script found)"
   ansible.builtin.debug:
     msg: >-
-      No script at {{ runtime_path }}/{{ module_name }}/{{ stage_name }}-{{ inventory_hostname }}.sh – skipping.
+      No script at {{ scripts_path }}/{{ short_module_name }}-{{ stage_name }}-{{ inventory_hostname }}.sh – skipping.
   when: not r_script_stat.stat.exists
 
 - name: "{{ module_name }}/{{ stage_name }} – create temp directory"
   ansible.builtin.file:
-    path: "/tmp/qa-scripts/{{ module_name }}"
+    path: "/tmp/qa-scripts/{{ short_module_name }}"
     state: directory
     mode: "0755"
   when: r_script_stat.stat.exists
 
 - name: "{{ module_name }}/{{ stage_name }} – install fail_validation helper"
   ansible.builtin.copy:
-    dest: "/tmp/qa-scripts/{{ module_name }}/env.validation.sh"
+    dest: "/tmp/qa-scripts/{{ short_module_name }}/env.validation.sh"
     mode: "0644"
     content: |
       fail_validation() {
@@ -48,24 +56,24 @@
 
 - name: "{{ module_name }}/{{ stage_name }} – copy script"
   ansible.builtin.copy:
-    src: "{{ runtime_path }}/{{ module_name }}/{{ stage_name }}-{{ inventory_hostname }}.sh"
-    dest: "/tmp/qa-scripts/{{ module_name }}/{{ stage_name }}-{{ inventory_hostname }}.sh"
+    src: "{{ scripts_path }}/{{ short_module_name }}-{{ stage_name }}-{{ inventory_hostname }}.sh"
+    dest: "/tmp/qa-scripts/{{ short_module_name }}/{{ stage_name }}-{{ inventory_hostname }}.sh"
     mode: "0755"
   when: r_script_stat.stat.exists
 
 - name: "{{ module_name }}/{{ stage_name }} – execute"
   ansible.builtin.shell: |
     set -e
-    [ -f /tmp/qa-scripts/{{ module_name }}/env.validation.sh ] && . /tmp/qa-scripts/{{ module_name }}/env.validation.sh
+    [ -f /tmp/qa-scripts/{{ short_module_name }}/env.validation.sh ] && . /tmp/qa-scripts/{{ short_module_name }}/env.validation.sh
     set -x
-    . /tmp/qa-scripts/{{ module_name }}/{{ stage_name }}-{{ inventory_hostname }}.sh
+    . /tmp/qa-scripts/{{ short_module_name }}/{{ stage_name }}-{{ inventory_hostname }}.sh
   register: r_script_result
   failed_when: false
   when: r_script_stat.stat.exists
 
 - name: "{{ module_name }}/{{ stage_name }} – write log"
   ansible.builtin.copy:
-    dest: "/tmp/qa-scripts/{{ module_name }}/{{ stage_name }}-{{ inventory_hostname }}.log"
+    dest: "/tmp/qa-scripts/{{ short_module_name }}/{{ stage_name }}-{{ inventory_hostname }}.log"
     content: >-
       {{ r_script_result.stdout | default('') }}{% if (r_script_result.stdout | default('')) and (r_script_result.stderr | default('')) %}{{ '\n' }}{% endif %}{{ r_script_result.stderr | default('') }}
     mode: "0644"

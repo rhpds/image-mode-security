@@ -1,8 +1,9 @@
 ---
 # E2E — End-to-end test (migrated ZT Guided content)
 # Solves and validates every module in ui-config.yml order, reusing the
-# legacy runtime-automation shell scripts (solve-<host>.sh / validation-<host>.sh)
-# that a migrated repo already ships. Fails on the first broken module.
+# qa-automation/scripts shell scripts (module-<n>-solve-<host>.sh /
+# module-<n>-validation-<host>.sh) that a migrated repo already ships.
+# Fails on the first broken module.
 
 - name: Build inventory
   hosts: localhost
@@ -21,7 +22,7 @@
   gather_facts: false
   become: true
   vars:
-    runtime_path: "{{ playbook_dir }}/../runtime-automation"
+    scripts_path: "{{ playbook_dir }}/scripts"
     _ui_config: "{{ lookup('file', playbook_dir ~ '/../ui-config.yml') | from_yaml }}"
     modules_in_order: "{{ _ui_config.antora.modules | map(attribute='name') | list }}"
   tasks:
