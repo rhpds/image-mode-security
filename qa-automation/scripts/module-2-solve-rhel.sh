@@ -1,7 +1,7 @@
 #!/bin/sh
 echo "Building and deploying security VM..." >> /tmp/progress.log
 
-CONTAINERFILE="~/bootc-base/Containerfile"
+CONTAINERFILE="/root/bootc-base/Containerfile"
 MARKER="RUN systemctl mask bootc-fetch-apply-updates.timer"
 
 sed -i "/^${MARKER}\$/a\\
