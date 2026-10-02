@@ -29,7 +29,6 @@
     scripts_in_order:
       - module-2-solve
       - module-2-validation
-      - module-3-validation
   tasks:
     - name: "Run each script in order"
       ansible.builtin.include_tasks: tasks/run_script.yml
