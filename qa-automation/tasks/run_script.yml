@@ -5,6 +5,10 @@
 # Expected vars (set by the caller's loop):
 #   script_name   – e.g. "module-2-solve" (without the "-<host>.sh" suffix)
 #   scripts_path  – path to qa-automation/scripts directory (set in play vars)
+#   _showroom_env_guid, _showroom_env_domain – GUID/DOMAIN pulled from the
+#     runner container's own environment (set in play vars) and injected into
+#     the remote script's environment, since the remote shell task doesn't
+#     source /etc/profile.d on the target host
 
 - name: "{{ script_name }} – create temp directory"
   ansible.builtin.file:
@@ -42,6 +46,9 @@
     . /tmp/qa-scripts/env.validation.sh
     set -x
     . /tmp/qa-scripts/{{ script_name }}-{{ inventory_hostname }}.sh
+  environment:
+    GUID: "{{ _showroom_env_guid }}"
+    DOMAIN: "{{ _showroom_env_domain }}"
   register: r_script_result
   failed_when: false
 

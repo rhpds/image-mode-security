@@ -26,6 +26,8 @@
   become: true
   vars:
     scripts_path: "{{ playbook_dir }}/scripts"
+    _showroom_env_guid: "{{ lookup('ansible.builtin.env', 'GUID') | default('') }}"
+    _showroom_env_domain: "{{ lookup('ansible.builtin.env', 'DOMAIN') | default('') }}"
     scripts_in_order:
       - module-2-solve
       - module-2-validation
