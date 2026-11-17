@@ -1,0 +1,74 @@
+---
+# Run from the build host using the guest key created by setup-rhel.sh.
+# Do not run the guest checks on rhel itself or rebuild/restart the guest here.
+- name: Validate guest connection inputs
+  ansible.builtin.assert:
+    that:
+      - _showroom_env_guid is match('^[A-Za-z0-9_-]+$')
+    fail_msg: GUID is required to locate the guest key created during setup
+
+- name: Wait for the deployed Bootc guest SSH and sudo readiness
+  ansible.builtin.command:
+    argv:
+      - ssh
+      - -i
+      - "/root/.ssh/{{ _showroom_env_guid }}key"
+      - -o
+      - BatchMode=yes
+      - -o
+      - ConnectTimeout=10
+      - -o
+      - StrictHostKeyChecking=accept-new
+      - -o
+      - UserKnownHostsFile=/root/.ssh/qa-bootc-known-hosts
+      - core@bootc-vm
+      - sudo -n true
+  register: bootc_ready
+  changed_when: false
+  until: bootc_ready.rc == 0
+  retries: 30
+  delay: 10
+
+- name: Execute module 3 only on the Bootc guest
+  ansible.builtin.command:
+    argv:
+      - ssh
+      - -i
+      - "/root/.ssh/{{ _showroom_env_guid }}key"
+      - -o
+      - BatchMode=yes
+      - -o
+      - ConnectTimeout=10
+      - -o
+      - ServerAliveInterval=15
+      - -o
+      - ServerAliveCountMax=4
+      - -o
+      - StrictHostKeyChecking=yes
+      - -o
+      - UserKnownHostsFile=/root/.ssh/qa-bootc-known-hosts
+      - core@bootc-vm
+      - sudo -n python3 -
+    stdin: "{{ lookup('ansible.builtin.file', scripts_path + '/module-3-validation-bootc.py') }}"
+  register: bootc_validation
+  failed_when: false
+  timeout: 1900
+
+- name: Retain module 3 validation output privately on the build host
+  ansible.builtin.copy:
+    content: "{{ bootc_validation.stdout }}\n{{ bootc_validation.stderr }}"
+    dest: /tmp/qa-scripts/module-3-validation-bootc.log
+    mode: "0600"
+
+- name: Report module 3 validation evidence
+  ansible.builtin.debug:
+    msg: "{{ bootc_validation.stdout }}"
+
+- name: Require completed module 3 validation
+  ansible.builtin.assert:
+    that:
+      - bootc_validation.rc == 0
+      - (bootc_validation.stdout | from_json).status == 'pass'
+    fail_msg: >-
+      Bootc guest validation did not complete successfully. Retain the deployment
+      and guest evidence; do not retry or rebuild automatically after transport loss.
