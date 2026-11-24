@@ -20,5 +20,5 @@ tabs:
   - name: ">_ Bootc VM"
     url: /wetty_bootc_vm/ssh/root
     modules:
-      - module-02
-      - module-03
+      - module-02-adding-security-controls
+      - module-03-testing-compliance

@@ -1,13 +1,4 @@
 ---
-# E2E — End-to-end test
-# Runs the qa-automation/scripts shell scripts against the rhel VM, in a
-# fixed order. Fails on the first broken script.
-#
-# The showroom runner container has direct SSH access to the VMs in its own
-# namespace (reachable by their Service name via cluster DNS) and is given
-# ANSIBLE_USER/ANSIBLE_PASSWORD for auth — it does not receive BASTION_HOST
-# (that's only injected into the setup init container).
-
 - name: Build inventory
   hosts: localhost
   gather_facts: false
@@ -20,8 +11,8 @@
         ansible_ssh_user: "{{ lookup('ansible.builtin.env', 'ANSIBLE_USER') }}"
         ansible_ssh_pass: "{{ lookup('ansible.builtin.env', 'ANSIBLE_PASSWORD') }}"
 
-- name: E2E - run scripts in order
-  hosts: all:!localhost
+- name: E2E - build the image and validate the deployed guest
+  hosts: rhel
   gather_facts: false
   become: true
   vars:
@@ -32,8 +23,11 @@
       - module-2-solve
       - module-2-validation
   tasks:
-    - name: "Run each script in order"
+    - name: Run each build-host script in order
       ansible.builtin.include_tasks: tasks/run_script.yml
       loop: "{{ scripts_in_order }}"
       loop_control:
         loop_var: script_name
+
+    - name: Validate the security exercises on the deployed Bootc guest
+      ansible.builtin.include_tasks: tasks/validate_bootc.yml
